@@ -15,14 +15,15 @@ with open(config_path, "r") as f:
 
 base_out_path = Path(os.path.expanduser(config["top_pages_path"]))
 
-headers = {"accept": "application/json",
-           "User-Agent": config["User-Agent"]}
+headers = {"accept": "application/json", "User-Agent": config["User-Agent"]}
 
-queries = [(year, str(month).zfill(2)) for year in range(2009, 2021) for month in range(1, 13)]
+queries = [
+    (year, str(month).zfill(2)) for year in range(2009, 2021) for month in range(1, 13)
+]
 
 for year, month in tqdm(queries):
 
-    file_name = "year_%s_month_%s" % (year, month)
+    file_name = "year_%s_month_%s.json" % (year, month)
     query_url = url % (year, month)
 
     response = requests.get(query_url, headers=headers)
@@ -33,6 +34,3 @@ for year, month in tqdm(queries):
         json.dump(data, f, indent=4)
 
     time.sleep(1 / 100)  # Rate limiting
-
-
-
