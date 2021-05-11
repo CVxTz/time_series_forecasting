@@ -1,0 +1,5 @@
+pytorch_lightning==1.2.8
+pytest==6.2.3
+numpy==1.19.2
+pandas==1.2.4
+scikit_learn==0.24.1
