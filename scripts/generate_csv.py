@@ -5,25 +5,6 @@ import os
 from tqdm import tqdm
 
 
-def add_date_cols(dataframe: pd.DataFrame, date_col: str = "timestamp"):
-    """
-    add time features like month, week of the year ...
-    :param dataframe:
-    :param date_col:
-    :return:
-    """
-
-    dataframe[date_col] = pd.to_datetime(dataframe[date_col], format='%Y%m%d')
-
-    dataframe["day_of_month"] = dataframe[date_col].dt.day / 31
-    dataframe["day_of_year"] = dataframe[date_col].dt.dayofyear / 365
-    dataframe["month"] = dataframe[date_col].dt.month / 12
-    dataframe["week_of_year"] = dataframe[date_col].dt.isocalendar().week / 53
-    dataframe["year"] = (dataframe[date_col].dt.year - 2015) / 5
-
-    return dataframe, ["day_of_month", "day_of_year", "month", "week_of_year", "year"]
-
-
 if __name__ == "__main__":
 
     config_path = Path(__file__).resolve().parent / "config.json"
@@ -53,7 +34,5 @@ if __name__ == "__main__":
                 ]
 
     df = pd.DataFrame(samples)
-
-    df, cols = add_date_cols(df)
 
     df.to_csv(data_path / "data.csv", index=False)
