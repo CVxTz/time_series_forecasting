@@ -32,5 +32,5 @@ df.sort_values(by="views", inplace=True, ascending=False)
 
 df.to_csv(data_path / "list_articles.csv", index=False)
 
-with open(data_path / "list_articles.txt", 'w') as f:
+with open(data_path / "list_articles.txt", "w") as f:
     f.write("\n".join(df.article.tolist()))

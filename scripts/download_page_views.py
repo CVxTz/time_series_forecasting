@@ -6,8 +6,10 @@ import os
 from tqdm import tqdm
 
 
-url = "https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/en.wikipedia.org/all-access/all-agents/" \
-      "%s/daily/%s/%s"
+url = (
+    "https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/en.wikipedia.org/all-access/all-agents/"
+    "%s/daily/%s/%s"
+)
 
 config_path = Path(__file__).resolve().parent / "config.json"
 
