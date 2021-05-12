@@ -5,32 +5,34 @@ import os
 import pandas as pd
 
 
-config_path = Path(__file__).resolve().parent / "config.json"
-data_path = Path(__file__).resolve().parents[1] / "data"
-print(data_path)
+if __name__ == "__main__":
 
-with open(config_path, "r") as f:
-    config = json.load(f)
+    config_path = Path(__file__).resolve().parent / "config.json"
+    data_path = Path(__file__).resolve().parents[1] / "data"
+    print(data_path)
 
-base_in_path = Path(os.path.expanduser(config["top_pages_path"]))
+    with open(config_path, "r") as f:
+        config = json.load(f)
 
-all_articles = []
+    base_in_path = Path(os.path.expanduser(config["top_pages_path"]))
 
-for json_path in base_in_path.glob("*.json"):
+    all_articles = []
 
-    with open(json_path, "r") as f:
-        data = json.load(f)
+    for json_path in base_in_path.glob("*.json"):
 
-        if "items" in data:
-            all_articles += data["items"][0]["articles"]
+        with open(json_path, "r") as f:
+            data = json.load(f)
 
-df = pd.DataFrame(all_articles)
+            if "items" in data:
+                all_articles += data["items"][0]["articles"]
 
-df = df.groupby("article")["views"].agg("sum").reset_index()
+    df = pd.DataFrame(all_articles)
 
-df.sort_values(by="views", inplace=True, ascending=False)
+    df = df.groupby("article")["views"].agg("sum").reset_index()
 
-df.to_csv(data_path / "list_articles.csv", index=False)
+    df.sort_values(by="views", inplace=True, ascending=False)
 
-with open(data_path / "list_articles.txt", "w") as f:
-    f.write("\n".join(df.article.tolist()))
+    df.to_csv(data_path / "list_articles.csv", index=False)
+
+    with open(data_path / "list_articles.txt", "w") as f:
+        f.write("\n".join(df.article.tolist()))

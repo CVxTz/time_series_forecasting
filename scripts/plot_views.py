@@ -8,7 +8,10 @@ if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("--json_path", default="~/ML_DATA/wikipedia_page_views/page_views/Angelina_Jolie.json")
+    parser.add_argument(
+        "--json_path",
+        default="~/ML_DATA/wikipedia_page_views/page_views/Angelina_Jolie.json",
+    )
     args = parser.parse_args()
 
     with open(os.path.expanduser(args.json_path)) as f:
