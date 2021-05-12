@@ -2,5 +2,6 @@
   "User-Agent": "_",
   "start_date": "20160101",
   "end_date": "20200101",
-  "top_pages_path": "~/ML_DATA/wikipedia_page_views/top_pages"
+  "top_pages_path": "~/ML_DATA/wikipedia_page_views/top_pages",
+  "page_views_path": "~/ML_DATA/wikipedia_page_views/page_views"
 }
