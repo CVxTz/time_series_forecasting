@@ -1,4 +1,5 @@
 import json
+from tqdm import tqdm
 
 import matplotlib.pyplot as plt
 
@@ -8,7 +9,7 @@ if __name__ == "__main__":
     with open("data/visualization.json", "r") as f:
         data = json.load(f)
 
-    for i, sample in enumerate(data):
+    for i, sample in enumerate(tqdm(data)):
         hist_size = len(sample["history"])
         gt_size = len(sample["ground_truth"])
         plt.figure()
@@ -23,6 +24,8 @@ if __name__ == "__main__":
         plt.xlabel("Index")
 
         plt.ylabel("x")
+
+        plt.title(f"Article : {sample['article']}")
 
         plt.legend()
 

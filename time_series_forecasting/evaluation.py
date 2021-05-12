@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 import torch
 from sklearn.metrics import mean_absolute_error
+from tqdm import tqdm
 
 from time_series_forecasting.model import TimeSeriesForcasting
 from time_series_forecasting.training import split_df, Dataset
@@ -44,8 +45,7 @@ def evaluate(
     feature_target_names_path: str,
     trained_json_path: str,
     eval_json_path: str,
-    horizon_size: int = 8,
-    target_norm: float = 100.0,
+    horizon_size: int = 15,
     data_for_visualization_path: Optional[str] = None,
 ):
     """
@@ -56,7 +56,6 @@ def evaluate(
     :param trained_json_path:
     :param eval_json_path:
     :param horizon_size:
-    :param target_norm:
     :param data_for_visualization_path:
     :return:
     """
@@ -74,7 +73,7 @@ def evaluate(
 
     data_train = data[~data[target].isna()]
 
-    grp_by_train = data_train.groupby(by=feature_target_names["group_by_keys"])
+    grp_by_train = data_train.groupby(by=feature_target_names["group_by_key"])
 
     groups = list(grp_by_train.groups)
 
@@ -106,20 +105,21 @@ def evaluate(
 
     data_for_visualization = []
 
-    for i, group in enumerate(full_groups):
+    for i, group in tqdm(enumerate(full_groups[:100])):
         time_series_data = {"history": [], "ground_truth": [], "prediction": []}
 
         df = grp_by_train.get_group(group)
         src, trg = split_df(df, split="val")
 
-        time_series_data["history"] = (src[target] * target_norm).tolist()[-60:]
-        time_series_data["ground_truth"] = (trg[target] * target_norm).tolist()
+        time_series_data["history"] = src[target].tolist()[-90:]
+        time_series_data["ground_truth"] = trg[target].tolist()
+        time_series_data["article"] = group
 
-        last_known_value = src[target].values[-1] * target_norm
+        last_known_value = src[target].values[-1]
 
         trg["last_known_value"] = last_known_value
 
-        gt += (trg[target] * target_norm).tolist()
+        gt += trg[target].tolist()
         baseline_last_known_values += trg["last_known_value"].tolist()
 
         src, trg_in, _ = val_data[i]
@@ -128,14 +128,12 @@ def evaluate(
 
         with torch.no_grad():
             prediction = model((src, trg_in[:, :1, :]))
-            for j in range(1, 8):
+            for j in range(1, horizon_size):
                 last_prediction = prediction[0, -1]
                 trg_in[:, j, -1] = last_prediction
                 prediction = model((src, trg_in[:, : (j + 1), :]))
 
-            trg[target + "_predicted"] = (
-                prediction.squeeze().numpy() * target_norm
-            ).tolist()
+            trg[target + "_predicted"] = (prediction.squeeze().numpy()).tolist()
 
             neural_predictions += trg[target + "_predicted"].tolist()
 

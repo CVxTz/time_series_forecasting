@@ -35,4 +35,6 @@ if __name__ == "__main__":
 
     df = pd.DataFrame(samples)
 
+    df.sort_values(by=["article", "timestamp"], inplace=True)
+
     df.to_csv(data_path / "data.csv", index=False)

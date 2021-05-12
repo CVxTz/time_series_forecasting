@@ -2,11 +2,7 @@ import pytorch_lightning as pl
 import torch
 import torch.nn as nn
 from torch.nn import Linear
-
-
-def smape_loss(y_pred, target):
-    loss = 2 * (y_pred - target).abs() / (y_pred.abs() + target.abs() + 1e-8)
-    return loss.mean()
+import torch.nn.functional as F
 
 
 def gen_trg_mask(length, device):
@@ -26,7 +22,7 @@ class TimeSeriesForcasting(pl.LightningModule):
         self,
         n_encoder_inputs,
         n_decoder_inputs,
-        channels=256,
+        channels=64,
         dropout=0.1,
         lr=1e-4,
     ):
@@ -44,17 +40,17 @@ class TimeSeriesForcasting(pl.LightningModule):
             d_model=channels,
             nhead=4,
             dropout=self.dropout,
-            dim_feedforward=5 * channels,
+            dim_feedforward=4 * channels,
         )
         decoder_layer = nn.TransformerDecoderLayer(
             d_model=channels,
             nhead=4,
             dropout=self.dropout,
-            dim_feedforward=5 * channels,
+            dim_feedforward=4 * channels,
         )
 
-        self.encoder = torch.nn.TransformerEncoder(encoder_layer, num_layers=5)
-        self.decoder = torch.nn.TransformerDecoder(decoder_layer, num_layers=5)
+        self.encoder = torch.nn.TransformerEncoder(encoder_layer, num_layers=3)
+        self.decoder = torch.nn.TransformerDecoder(decoder_layer, num_layers=2)
 
         self.input_projection = Linear(n_encoder_inputs, channels)
         self.output_projection = Linear(n_decoder_inputs, channels)
@@ -68,13 +64,15 @@ class TimeSeriesForcasting(pl.LightningModule):
 
         in_sequence_len, batch_size = src.size(0), src.size(1)
         pos_encoder = (
-            torch.arange(0, in_sequence_len, device=src.device)
+            torch.arange(in_sequence_len - 1, -1, step=-1, device=src.device)
             .unsqueeze(0)
             .repeat(batch_size, 1)
         )
         pos_encoder = self.input_pos_embedding(pos_encoder).permute(1, 0, 2)
 
         src += pos_encoder
+
+        src = self.do(src)
 
         src = self.encoder(src)
 
@@ -95,6 +93,8 @@ class TimeSeriesForcasting(pl.LightningModule):
         pos_decoder = self.target_pos_embedding(pos_decoder).permute(1, 0, 2)
 
         trg += pos_decoder
+
+        trg = self.do(trg)
 
         trg_mask = gen_trg_mask(out_sequence_len, trg.device)
 
@@ -123,7 +123,7 @@ class TimeSeriesForcasting(pl.LightningModule):
         y_hat = y_hat.view(-1)
         y = trg_out.view(-1)
 
-        loss = smape_loss(y_hat, y)
+        loss = F.l1_loss(y_hat, y)
 
         self.log("train_loss", loss)
 
@@ -137,7 +137,7 @@ class TimeSeriesForcasting(pl.LightningModule):
         y_hat = y_hat.view(-1)
         y = trg_out.view(-1)
 
-        loss = smape_loss(y_hat, y)
+        loss = F.l1_loss(y_hat, y)
 
         self.log("valid_loss", loss)
 
@@ -151,7 +151,7 @@ class TimeSeriesForcasting(pl.LightningModule):
         y_hat = y_hat.view(-1)
         y = trg_out.view(-1)
 
-        loss = smape_loss(y_hat, y)
+        loss = F.l1_loss(y_hat, y)
 
         self.log("test_loss", loss)
 
@@ -171,7 +171,5 @@ if __name__ == "__main__":
     ts = TimeSeriesForcasting(n_encoder_inputs=9, n_decoder_inputs=8)
 
     pred = ts((source, target_in))
-
-    print(pred.size())
 
     ts.training_step((source, target_in, target_out), batch_idx=1)
