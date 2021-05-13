@@ -13,7 +13,7 @@ from time_series_forecasting.model import TimeSeriesForcasting
 
 
 def split_df(
-    df: pd.DataFrame, split: str, history_size: int = 90, horizon_size: int = 30
+    df: pd.DataFrame, split: str, history_size: int = 120, horizon_size: int = 30
 ):
     """
     Create a training / validation samples
@@ -41,7 +41,7 @@ def split_df(
     return history, targets
 
 
-def pad_arr(arr: np.ndarray, expected_size: int = 90):
+def pad_arr(arr: np.ndarray, expected_size: int = 120):
     """
     Pad top of array when there is not enough history
     :param arr:
@@ -100,7 +100,7 @@ def train(
     model_dir: str = "ts_models",
     batch_size: int = 32,
     epochs: int = 2000,
-    horizon_size: int = 8,
+    horizon_size: int = 30,
 ):
     data = pd.read_csv(data_csv_path)
 
@@ -197,7 +197,7 @@ if __name__ == "__main__":
     parser.add_argument("--output_json_path", default=None)
     parser.add_argument("--log_dir")
     parser.add_argument("--model_dir")
-    parser.add_argument("--epochs", type=int, default=100)
+    parser.add_argument("--epochs", type=int, default=2000)
     args = parser.parse_args()
 
     train(

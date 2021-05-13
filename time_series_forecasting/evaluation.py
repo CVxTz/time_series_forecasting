@@ -44,7 +44,7 @@ def evaluate(
     feature_target_names_path: str,
     trained_json_path: str,
     eval_json_path: str,
-    horizon_size: int = 8,
+    horizon_size: int = 30,
     data_for_visualization_path: Optional[str] = None,
 ):
     """
@@ -72,7 +72,7 @@ def evaluate(
 
     data_train = data[~data[target].isna()]
 
-    grp_by_train = data_train.groupby(by=feature_target_names["group_by_keys"])
+    grp_by_train = data_train.groupby(by=feature_target_names["group_by_key"])
 
     groups = list(grp_by_train.groups)
 
@@ -104,13 +104,13 @@ def evaluate(
 
     data_for_visualization = []
 
-    for i, group in enumerate(full_groups):
+    for i, group in enumerate(full_groups[:100]):
         time_series_data = {"history": [], "ground_truth": [], "prediction": []}
 
         df = grp_by_train.get_group(group)
         src, trg = split_df(df, split="val")
 
-        time_series_data["history"] = src[target].tolist()[-60:]
+        time_series_data["history"] = src[target].tolist()[-120:]
         time_series_data["ground_truth"] = trg[target].tolist()
 
         last_known_value = src[target].values[-1]
@@ -126,14 +126,12 @@ def evaluate(
 
         with torch.no_grad():
             prediction = model((src, trg_in[:, :1, :]))
-            for j in range(1, 8):
+            for j in range(1, horizon_size):
                 last_prediction = prediction[0, -1]
                 trg_in[:, j, -1] = last_prediction
                 prediction = model((src, trg_in[:, : (j + 1), :]))
 
-            trg[target + "_predicted"] = (
-                prediction.squeeze().numpy()
-            ).tolist()
+            trg[target + "_predicted"] = (prediction.squeeze().numpy()).tolist()
 
             neural_predictions += trg[target + "_predicted"].tolist()
 

@@ -26,7 +26,7 @@ class TimeSeriesForcasting(pl.LightningModule):
         self,
         n_encoder_inputs,
         n_decoder_inputs,
-        channels=256,
+        channels=512,
         dropout=0.1,
         lr=1e-4,
     ):
@@ -42,19 +42,19 @@ class TimeSeriesForcasting(pl.LightningModule):
 
         encoder_layer = nn.TransformerEncoderLayer(
             d_model=channels,
-            nhead=4,
+            nhead=8,
             dropout=self.dropout,
-            dim_feedforward=5 * channels,
+            dim_feedforward=4 * channels,
         )
         decoder_layer = nn.TransformerDecoderLayer(
             d_model=channels,
-            nhead=4,
+            nhead=8,
             dropout=self.dropout,
-            dim_feedforward=5 * channels,
+            dim_feedforward=4 * channels,
         )
 
         self.encoder = torch.nn.TransformerEncoder(encoder_layer, num_layers=8)
-        self.decoder = torch.nn.TransformerDecoder(decoder_layer, num_layers=4)
+        self.decoder = torch.nn.TransformerDecoder(decoder_layer, num_layers=8)
 
         self.input_projection = Linear(n_encoder_inputs, channels)
         self.output_projection = Linear(n_decoder_inputs, channels)
@@ -82,8 +82,6 @@ class TimeSeriesForcasting(pl.LightningModule):
 
     def decode_trg(self, trg, memory):
         batch_size, out_sequence_len = trg.size(0), trg.size(1)
-
-        trg = self.do(trg)
 
         trg = self.output_projection(trg).permute(1, 0, 2)
 
@@ -158,7 +156,15 @@ class TimeSeriesForcasting(pl.LightningModule):
         return loss
 
     def configure_optimizers(self):
-        return torch.optim.Adam(self.parameters(), lr=self.lr)
+        optimizer = torch.optim.Adam(self.parameters(), lr=self.lr)
+        scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
+            optimizer, patience=10, factor=0.1
+        )
+        return {
+            "optimizer": optimizer,
+            "lr_scheduler": scheduler,
+            "monitor": "valid_loss",
+        }
 
 
 if __name__ == "__main__":

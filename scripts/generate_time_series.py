@@ -23,13 +23,15 @@ def get_init_df():
 
 def set_amplitude(dataframe):
 
-    max_step = random.randint(15, 45)
+    max_step = random.randint(90, 365)
     max_amplitude = random.uniform(0.1, 1)
     offset = random.uniform(-1, 1)
 
+    phase = random.randint(-1000, 1000)
+
     amplitude = (
         dataframe["index"]
-        .apply(lambda x: max_amplitude * (x % max_step) / max_step + offset)
+        .apply(lambda x: max_amplitude * (x % max_step + phase) / max_step + offset)
         .values
     )
 
@@ -47,9 +49,14 @@ def set_offset(dataframe):
     max_offset = random.uniform(-1, 1)
     base_offset = random.uniform(-1, 1)
 
+    phase = random.randint(-1000, 1000)
+
     offset = (
         dataframe["index"]
-        .apply(lambda x: max_offset * np.cos(x * 2 * np.pi / max_step) + base_offset)
+        .apply(
+            lambda x: max_offset * np.cos(x * 2 * np.pi / max_step + phase)
+            + base_offset
+        )
         .values
     )
 
@@ -63,12 +70,21 @@ def set_offset(dataframe):
 
 def generate_time_series(dataframe):
 
+    clip_val = random.uniform(0.3, 1)
+
     period = random.choice(periods)
 
+    phase = random.randint(-1000, 1000)
+
     dataframe["views"] = dataframe.apply(
-        lambda x: np.cos(x["index"] * 2 * np.pi / period) * x["amplitude"]
+        lambda x: np.clip(
+            np.cos(x["index"] * 2 * np.pi / period + phase), -clip_val, clip_val
+        )
+        * x["amplitude"]
         + x["offset"],
         axis=1,
+    ) + np.random.normal(
+        0, dataframe["amplitude"].abs().max() / 10, size=(dataframe.shape[0],)
     )
 
     return dataframe
@@ -84,15 +100,19 @@ def generate_df():
 
 if __name__ == "__main__":
 
+    import matplotlib.pyplot as plt
+
     dataframes = []
 
-    for _ in tqdm(range(5000)):
+    for _ in tqdm(range(20000)):
         df = generate_df()
+
+        # fig = plt.figure()
+        # plt.plot(df[-120:]["index"], df[-120:]["views"])
+        # plt.show()
 
         dataframes.append(df)
 
     all_data = pd.concat(dataframes, ignore_index=True)
 
     all_data.to_csv("data/data.csv", index=False)
-
-
