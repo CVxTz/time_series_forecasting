@@ -25,7 +25,7 @@ def add_date_cols(dataframe: pd.DataFrame, date_col: str = "timestamp"):
 
 
 def add_basic_lag_features(
-    dataframe: pd.DataFrame, group_by_cols: List, col_names: List, horizons: List
+    dataframe: pd.DataFrame, group_by_cols: List, col_names: List, horizons: List, fill_na=True
 ):
     """
     Computes simple lag features
@@ -33,6 +33,7 @@ def add_basic_lag_features(
     :param group_by_cols:
     :param col_names:
     :param horizons:
+    :param fill_na:
     :return:
     """
     group_by_data = dataframe.groupby(by=group_by_cols)
@@ -45,7 +46,9 @@ def add_basic_lag_features(
         ].shift(periods=horizon)
         new_cols += [a + "_lag_%s" % horizon for a in col_names]
 
-    dataframe[new_cols] = dataframe[new_cols].fillna(0)
+    if fill_na:
+        dataframe[new_cols] = dataframe[new_cols].fillna(0)
+
     return dataframe, new_cols
 
 
