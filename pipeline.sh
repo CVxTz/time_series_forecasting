@@ -5,7 +5,7 @@ python time_series_forecasting/data_utils.py --csv_path "data/data.csv" \
                                              --config_path "data/config.json"
 
 # Train
-# Trains a model and saves the model in models/ts_turnover_models/
+# Trains a model and saves the model in models/ts_models/
 
 python time_series_forecasting/training.py --data_csv_path "data/processed_data.csv" \
                                            --feature_target_names_path "data/config.json" \

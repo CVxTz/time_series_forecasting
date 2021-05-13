@@ -64,26 +64,28 @@ class TimeSeriesForcasting(pl.LightningModule):
         self.do = nn.Dropout(p=self.dropout)
 
     def encode_src(self, src):
-        src = self.input_projection(src).permute(1, 0, 2)
+        src_start = self.input_projection(src).permute(1, 0, 2)
 
-        in_sequence_len, batch_size = src.size(0), src.size(1)
+        in_sequence_len, batch_size = src_start.size(0), src_start.size(1)
         pos_encoder = (
             torch.arange(0, in_sequence_len, device=src.device)
             .unsqueeze(0)
             .repeat(batch_size, 1)
         )
+
         pos_encoder = self.input_pos_embedding(pos_encoder).permute(1, 0, 2)
 
-        src += pos_encoder
+        src = src_start + pos_encoder
 
-        src = self.encoder(src)
+        src = self.encoder(src) + src_start
 
         return src
 
     def decode_trg(self, trg, memory):
-        batch_size, out_sequence_len = trg.size(0), trg.size(1)
 
-        trg = self.output_projection(trg).permute(1, 0, 2)
+        trg_start = self.output_projection(trg).permute(1, 0, 2)
+
+        out_sequence_len, batch_size = trg_start.size(0), trg_start.size(1)
 
         pos_decoder = (
             torch.arange(0, out_sequence_len, device=trg.device)
@@ -92,11 +94,11 @@ class TimeSeriesForcasting(pl.LightningModule):
         )
         pos_decoder = self.target_pos_embedding(pos_decoder).permute(1, 0, 2)
 
-        trg += pos_decoder
+        trg = pos_decoder + trg_start
 
         trg_mask = gen_trg_mask(out_sequence_len, trg.device)
 
-        out = self.decoder(tgt=trg, memory=memory, tgt_mask=trg_mask)
+        out = self.decoder(tgt=trg, memory=memory, tgt_mask=trg_mask) + trg_start
 
         out = out.permute(1, 0, 2)
 

@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 import torch
 from sklearn.metrics import mean_absolute_error
+from tqdm import tqdm
 
 from time_series_forecasting.model import TimeSeriesForcasting
 from time_series_forecasting.training import split_df, Dataset
@@ -104,7 +105,7 @@ def evaluate(
 
     data_for_visualization = []
 
-    for i, group in enumerate(full_groups[:100]):
+    for i, group in tqdm(enumerate(full_groups[:100])):
         time_series_data = {"history": [], "ground_truth": [], "prediction": []}
 
         df = grp_by_train.get_group(group)

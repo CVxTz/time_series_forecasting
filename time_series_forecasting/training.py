@@ -151,7 +151,7 @@ def train(
     model = TimeSeriesForcasting(
         n_encoder_inputs=len(feature_target_names["features"]) + 1,
         n_decoder_inputs=len(feature_target_names["features"]) + 1,
-        lr=1e-4,
+        lr=1e-5,
         dropout=0.1,
     )
 
