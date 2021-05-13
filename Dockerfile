@@ -2,7 +2,7 @@ FROM python:3.8-slim
 
 WORKDIR /app
 
-COPY ./time_series ./time_series
+COPY ./time_series_forcasting ./time_series_forcasting
 COPY requirements.txt requirements.txt
 COPY setup.py setup.py
 
