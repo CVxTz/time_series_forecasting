@@ -13,7 +13,7 @@ from time_series_forecasting.model import TimeSeriesForcasting
 
 
 def split_df(
-    df: pd.DataFrame, split: str, history_size: int = 60, horizon_size: int = 8
+    df: pd.DataFrame, split: str, history_size: int = 90, horizon_size: int = 30
 ):
     """
     Create a training / validation samples
@@ -41,7 +41,7 @@ def split_df(
     return history, targets
 
 
-def pad_arr(arr: np.ndarray, expected_size: int = 60):
+def pad_arr(arr: np.ndarray, expected_size: int = 90):
     """
     Pad top of array when there is not enough history
     :param arr:
@@ -109,7 +109,7 @@ def train(
 
     data_train = data[~data[feature_target_names["target"]].isna()]
 
-    grp_by_train = data_train.groupby(by=feature_target_names["group_by_keys"])
+    grp_by_train = data_train.groupby(by=feature_target_names["group_by_key"])
 
     groups = list(grp_by_train.groups)
 
@@ -152,7 +152,7 @@ def train(
         n_encoder_inputs=len(feature_target_names["features"]) + 1,
         n_decoder_inputs=len(feature_target_names["features"]) + 1,
         lr=1e-4,
-        dropout=0.5,
+        dropout=0.1,
     )
 
     logger = TensorBoardLogger(
@@ -197,7 +197,7 @@ if __name__ == "__main__":
     parser.add_argument("--output_json_path", default=None)
     parser.add_argument("--log_dir")
     parser.add_argument("--model_dir")
-    parser.add_argument("--epochs", type=int, default=500)
+    parser.add_argument("--epochs", type=int, default=100)
     args = parser.parse_args()
 
     train(

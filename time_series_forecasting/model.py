@@ -53,8 +53,8 @@ class TimeSeriesForcasting(pl.LightningModule):
             dim_feedforward=5 * channels,
         )
 
-        self.encoder = torch.nn.TransformerEncoder(encoder_layer, num_layers=5)
-        self.decoder = torch.nn.TransformerDecoder(decoder_layer, num_layers=5)
+        self.encoder = torch.nn.TransformerEncoder(encoder_layer, num_layers=8)
+        self.decoder = torch.nn.TransformerDecoder(decoder_layer, num_layers=4)
 
         self.input_projection = Linear(n_encoder_inputs, channels)
         self.output_projection = Linear(n_decoder_inputs, channels)

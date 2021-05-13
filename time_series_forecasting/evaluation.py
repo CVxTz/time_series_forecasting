@@ -45,7 +45,6 @@ def evaluate(
     trained_json_path: str,
     eval_json_path: str,
     horizon_size: int = 8,
-    target_norm: float = 100.0,
     data_for_visualization_path: Optional[str] = None,
 ):
     """
@@ -56,7 +55,6 @@ def evaluate(
     :param trained_json_path:
     :param eval_json_path:
     :param horizon_size:
-    :param target_norm:
     :param data_for_visualization_path:
     :return:
     """
@@ -112,14 +110,14 @@ def evaluate(
         df = grp_by_train.get_group(group)
         src, trg = split_df(df, split="val")
 
-        time_series_data["history"] = (src[target] * target_norm).tolist()[-60:]
-        time_series_data["ground_truth"] = (trg[target] * target_norm).tolist()
+        time_series_data["history"] = src[target].tolist()[-60:]
+        time_series_data["ground_truth"] = trg[target].tolist()
 
-        last_known_value = src[target].values[-1] * target_norm
+        last_known_value = src[target].values[-1]
 
         trg["last_known_value"] = last_known_value
 
-        gt += (trg[target] * target_norm).tolist()
+        gt += trg[target].tolist()
         baseline_last_known_values += trg["last_known_value"].tolist()
 
         src, trg_in, _ = val_data[i]
@@ -134,7 +132,7 @@ def evaluate(
                 prediction = model((src, trg_in[:, : (j + 1), :]))
 
             trg[target + "_predicted"] = (
-                prediction.squeeze().numpy() * target_norm
+                prediction.squeeze().numpy()
             ).tolist()
 
             neural_predictions += trg[target + "_predicted"].tolist()
