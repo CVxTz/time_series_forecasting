@@ -34,7 +34,7 @@ jobs:
           flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
 
       - name: Build docker image
-        run: docker build . -t time_series_forcasting
+        run: docker build . -t time_series_forecasting
 
       - name: Run tests
-        run: docker run time_series_forcasting sh -c "pytest"
+        run: docker run time_series_forecasting sh -c "pytest"
