@@ -25,7 +25,11 @@ def add_date_cols(dataframe: pd.DataFrame, date_col: str = "timestamp"):
 
 
 def add_basic_lag_features(
-    dataframe: pd.DataFrame, group_by_cols: List, col_names: List, horizons: List, fill_na=True
+    dataframe: pd.DataFrame,
+    group_by_cols: List,
+    col_names: List,
+    horizons: List,
+    fill_na=True,
 ):
     """
     Computes simple lag features

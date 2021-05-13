@@ -36,7 +36,11 @@ def test_add_date_cols(tr_data):
 
 def test_add_basic_lag_features(tr_data):
     df, new_cols = add_basic_lag_features(
-        tr_data, group_by_cols=["key"], col_names=["value", "date"], horizons=[0, 1, 2], fill_na=False
+        tr_data,
+        group_by_cols=["key"],
+        col_names=["value", "date"],
+        horizons=[0, 1, 2],
+        fill_na=False,
     )
 
     diff_date_0 = (df["date_lag_0"] - df["date"]).dropna().dt.days
