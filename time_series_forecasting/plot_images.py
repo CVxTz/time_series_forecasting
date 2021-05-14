@@ -15,17 +15,17 @@ if __name__ == "__main__":
         hist_size = len(sample["history"])
         gt_size = len(sample["ground_truth"])
         plt.figure()
-        plt.plot(range(hist_size), sample["history"], label="input")
+        plt.plot(range(hist_size), sample["history"], label="History")
         plt.plot(
-            range(hist_size, hist_size + gt_size), sample["ground_truth"], label="gt"
+            range(hist_size, hist_size + gt_size), sample["ground_truth"], label="Ground Truth"
         )
         plt.plot(
-            range(hist_size, hist_size + gt_size), sample["prediction"], label="pred"
+            range(hist_size, hist_size + gt_size), sample["prediction"], label="Prediction"
         )
 
-        plt.xlabel("Index")
+        plt.xlabel("Time")
 
-        plt.ylabel("x")
+        plt.ylabel("Time Series")
 
         plt.legend()
 
