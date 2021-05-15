@@ -8,5 +8,5 @@ COPY setup.py setup.py
 
 COPY tests tests
 
-RUN pip install . --no-cache-dir
 RUN pip install torch==1.8.1+cpu -f https://download.pytorch.org/whl/torch_stable.html --no-cache-dir
+RUN pip install . --no-cache-dir
