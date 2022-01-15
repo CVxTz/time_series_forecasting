@@ -1,0 +1,14 @@
+{
+    "features": [
+        "day_of_month",
+        "day_of_year",
+        "month",
+        "week_of_year",
+        "year"
+    ],
+    "target": "views",
+    "group_by_key": "article",
+    "lag_features": [
+        "views_lag_1"
+    ]
+}
